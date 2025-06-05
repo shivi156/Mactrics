@@ -1,0 +1,100 @@
+#!/bin/zsh
+
+install_homebrew() {
+  if ! command -v brew &> /dev/null; then
+    echo "Homebrew is not installed. Installing Homebrew."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  else
+    echo "Homebrew is already installed."
+  fi
+}
+
+install_influxdb() {
+  if ! command -v influxd &> /dev/null; then
+    echo "InfluxDB is not installed. Installing InfluxDB."
+    brew install influxdb
+  else
+    echo "InfluxDB is already installed."
+  fi
+}
+
+install_influx_cli() {
+  if ! command -v influx &> /dev/null; then
+    echo "Influx CLI is not installed. Installing Influx CLI."
+    brew install influxdb-cli
+  else
+    echo "Influx CLI is already installed."
+  fi
+}
+
+install_grafana() {
+  if ! command -v grafana-cli &> /dev/null; then
+    echo "Grafana is not installed. Installing Grafana."
+    brew install grafana
+  else
+    echo "Grafana is already installed."
+  fi
+}
+
+start_influxdb() {
+  if ! brew services list | grep -q "influxdb.*started"; then
+    echo "Starting InfluxDB service."
+    brew services start influxdb
+  else
+    echo "InfluxDB service is already running."
+  fi
+}
+
+start_grafana() {
+  if ! brew services list | grep -q "grafana.*started"; then
+    echo "Starting Grafana service."
+    brew services start grafana
+  else
+    echo "Grafana service is already running."
+  fi
+}
+
+setup_python_environment() {
+  echo "Setting up Python virtual environment..."
+
+  if [ ! -d "venv" ]; then
+    python3 -m venv venv
+  fi
+
+  source venv/bin/activate
+
+  pip install --upgrade pip
+
+  REQUIRED_MODULES=("psutil")
+
+  for module in "${REQUIRED_MODULES[@]}"; do
+    if ! python -c "import ${module//-/_}" &> /dev/null; then
+      echo "Installing $module..."
+      pip install "$module"
+    else
+      echo "$module is already installed."
+    fi
+  done
+
+  deactivate
+}
+
+run_python_app() {
+  echo "Activating virtual environment and running Python application."
+
+  source venv/bin/activate
+  python main.py
+  deactivate
+}
+
+install_homebrew
+install_influxdb
+install_influx_cli
+install_grafana
+start_influxdb
+start_grafana
+setup_python_environment
+run_python_app
+
+
+echo "Installation and services start complete!"

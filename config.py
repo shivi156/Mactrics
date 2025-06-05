@@ -12,4 +12,3 @@ BUCKET = config['InfluxDB']['BUCKET']
 
 # This configures logging
 OUTPUT_FILE = config['LOGGING']['OUTPUT_FILE']
-ERROR_FILE = config['LOGGING']['ERROR_FILE']
